@@ -3,5 +3,6 @@ xlmroberta_finetuned/
 *.xlsx
 *.pdf
 venv/
+.venv/
 __pycache__/
 .DS_Store
