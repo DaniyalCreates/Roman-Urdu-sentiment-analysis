@@ -39,6 +39,26 @@ of multilingual transformer models for low-resource language sentiment analysis.
 | `run_stress_test.py` | Runs Notebook 4 end-to-end locally against the emotion dataset |
 | `test_xlmroberta.py` | Loads the fine-tuned model and classifies a set of example sentences |
 | `app.py` | FastAPI demo app — serves a single-page UI for live sentiment inference |
+| `collect_data.py` | YouTube data collection agent — searches Pakistani content, filters Roman Urdu comments, and runs sentiment predictions |
+
+## 📡 Data Collection
+
+`collect_data.py` uses the YouTube Data API v3 to gather real-world Roman Urdu comments for further analysis or model retraining.
+
+- Searches across 4 categories: **dramas, cricket, news, vlogs** (configurable `SEARCH_TERMS` dict)
+- Filters to Roman Urdu: Latin script + presence of common Urdu vocabulary markers
+- Deduplicates across all fetched videos in a run
+- Saves `collected_comments.csv` (text, video\_title, date\_collected)
+- Runs `xlmroberta_finetuned` inference and saves `collected_with_predictions.csv`
+- Prints a summary: total fetched, kept after filtering, Positive/Negative split
+
+**Setup:**
+```bash
+cp .env.example .env          # then paste your YouTube Data API v3 key inside
+python collect_data.py
+```
+
+> A free YouTube Data API v3 key gives 10,000 units/day. One full run costs ~1,300 units.
 
 ## 🚀 Demo App
 
