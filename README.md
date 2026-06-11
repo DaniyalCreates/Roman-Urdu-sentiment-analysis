@@ -1,6 +1,10 @@
 # Sentiment Analysis of Roman Urdu Social Media Text
 ### MSc Dissertation — Artificial Intelligence & Data Science | University of Hull (2025)
 
+## 🚀 Live Demo
+
+**[Try it on Hugging Face Spaces →](https://huggingface.co/spaces/DaniyalCreates/roman-urdu-sentiment)**
+
 ## 📌 Project Overview
 Roman Urdu is a low-resource language written in Latin script, widely used 
 across South Asian social media platforms but severely underrepresented in 
@@ -12,7 +16,7 @@ real-world NLP challenge with no standardised corpus or pre-trained resources.
 | Model | Accuracy |
 |-------|----------|
 | Bi-LSTM (baseline) | ~79% |
-| XLM-RoBERTa (fine-tuned) | 82% |
+| [XLM-RoBERTa (fine-tuned)](https://huggingface.co/DaniyalCreates/roman-urdu-sentiment-xlmroberta) | 82% |
 
 XLM-RoBERTa outperformed the Bi-LSTM baseline, demonstrating the viability
 of multilingual transformer models for low-resource language sentiment analysis.
@@ -50,7 +54,8 @@ Then open **http://localhost:8000** in your browser.
 
 > The fine-tuned model (`xlmroberta_finetuned/`) must be present in the
 > project root. It is excluded from version control due to size — download
-> it from the Colab notebook or a shared drive and unzip it here.
+> it from the [Hugging Face model repo](https://huggingface.co/DaniyalCreates/roman-urdu-sentiment-xlmroberta)
+> or the Colab notebook and unzip it here.
 
 ## 🛠️ Tech Stack
 - **Language:** Python 3.9
