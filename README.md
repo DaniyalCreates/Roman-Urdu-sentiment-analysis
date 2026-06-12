@@ -45,7 +45,7 @@ of multilingual transformer models for low-resource language sentiment analysis.
 
 `collect_data.py` uses the YouTube Data API v3 to gather real-world Roman Urdu comments for further analysis or model retraining.
 
-- Searches across 4 categories: **dramas, cricket, news, vlogs** (configurable `SEARCH_TERMS` dict)
+- Searches across 7 categories: **dramas, cricket, news, vlogs, music, comedy, food** (configurable `SEARCH_TERMS` dict)
 - Filters to Roman Urdu: Latin script + presence of common Urdu vocabulary markers
 - Deduplicates across all fetched videos in a run
 - Saves `collected_comments.csv` (text, video\_title, date\_collected)
@@ -59,6 +59,24 @@ python collect_data.py
 ```
 
 > A free YouTube Data API v3 key gives 10,000 units/day. One full run costs ~1,300 units.
+
+## 🤖 Automated Weekly Reports
+
+Every **Monday at 09:00 UTC** a GitHub Actions workflow runs `weekly_report.py`, which:
+
+1. Collects fresh Roman Urdu comments from YouTube across all 7 categories
+2. Loads the fine-tuned model directly from [Hugging Face Hub](https://huggingface.co/DaniyalCreates/roman-urdu-sentiment-xlmroberta) — no local files needed
+3. Classifies every comment and generates a markdown report in `reports/report_YYYY-MM-DD.md` containing:
+   - Total collected and pass rate
+   - Positive / Negative sentiment split
+   - Confidence distribution (50–60% / 60–70% / 70–90% / 90%+)
+   - 10 lowest-confidence predictions
+   - Per-category Roman Urdu density table
+4. Commits and pushes the report back to this repository automatically
+
+Reports are stored in the [`reports/`](reports/) folder and build up a longitudinal view of sentiment trends in Pakistani social media content.
+
+The workflow requires a `YOUTUBE_API_KEY` repository secret (Settings → Secrets and variables → Actions). It can also be triggered manually from the [Actions tab](../../actions/workflows/weekly_report.yml).
 
 ## 🚀 Demo App
 
