@@ -31,6 +31,7 @@ of multilingual transformer models for low-resource language sentiment analysis.
 | `Notebook3Final_XLM_RoBERTa` | Fine-tuning XLM-RoBERTa using HuggingFace Transformers |
 | `Notebook3_XLM_RoBERTa_Colab.ipynb` | Colab-ready version — mounts Google Drive, saves and zips the fine-tuned model for download |
 | `Notebook4Final_Stress_Test` | Cross-domain robustness test against the RU-EN Emotion Dataset |
+| `Notebook5_ThreeClass_XLM_RoBERTa.ipynb` | Colab-ready notebook extending the model to three classes (Positive / Negative / Neutral) using human-labelled Neutral examples from `annotations.csv` |
 
 ### Scripts
 | File | Description |
@@ -41,6 +42,7 @@ of multilingual transformer models for low-resource language sentiment analysis.
 | `app.py` | FastAPI demo app — serves a single-page UI for live sentiment inference |
 | `collect_data.py` | YouTube data collection agent — searches Pakistani content, filters Roman Urdu comments, and runs sentiment predictions |
 | `annotate.py` | Local annotation tool — label low-confidence comments via a keyboard-driven web UI, saving results to `annotations.csv` |
+| `analyze_annotations.py` | Post-labelling analysis — compares `annotations.csv` against model predictions, reports agreement and novel-class rates, saves a markdown summary to `research_notes_annotation_results.md` |
 | `weekly_report.py` | Weekly evaluation agent — collects, classifies, and commits a markdown report; run by GitHub Actions every Monday |
 
 ## 🏷️ Annotation Tool
@@ -68,7 +70,13 @@ uvicorn annotate:app --port 8001
 ```
 Then open **http://localhost:8001**
 
-The resulting `annotations.csv` (text, model_prediction, model_confidence, human_label) forms the candidate training set for a future neutral-class model extension.
+The resulting `annotations.csv` (text, model_prediction, model_confidence, human_label) forms the training set for the three-class model extension.
+
+**Analyse results at any time** (works on a partially completed file):
+```bash
+python analyze_annotations.py
+```
+Reports label distribution, model-vs-human agreement on P/N cases, and novel-class counts. Saves a markdown summary to `research_notes_annotation_results.md`. Sarcastic/Mixed comments are automatically held out to `sarcasm_set.csv` when Notebook 5 runs.
 
 ## 📡 Data Collection
 
