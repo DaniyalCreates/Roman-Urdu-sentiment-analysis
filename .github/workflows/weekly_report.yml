@@ -1,0 +1,49 @@
+name: Weekly Sentiment Report
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC (09:00 UK in winter / 10:00 UK in summer)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:  # allows manual trigger from the Actions tab
+
+permissions:
+  contents: write   # required to commit the report back to the repo
+
+jobs:
+  weekly-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch \
+            transformers \
+            sentencepiece \
+            safetensors \
+            google-api-python-client \
+            python-dotenv \
+            pandas
+
+      - name: Run weekly report
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python weekly_report.py
+
+      - name: Commit and push report
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          # only commit if there is something new
+          git diff --staged --quiet || git commit -m "Add weekly report $(date +%Y-%m-%d)"
+          git push
