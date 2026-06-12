@@ -40,6 +40,35 @@ of multilingual transformer models for low-resource language sentiment analysis.
 | `test_xlmroberta.py` | Loads the fine-tuned model and classifies a set of example sentences |
 | `app.py` | FastAPI demo app — serves a single-page UI for live sentiment inference |
 | `collect_data.py` | YouTube data collection agent — searches Pakistani content, filters Roman Urdu comments, and runs sentiment predictions |
+| `annotate.py` | Local annotation tool — label low-confidence comments via a keyboard-driven web UI, saving results to `annotations.csv` |
+| `weekly_report.py` | Weekly evaluation agent — collects, classifies, and commits a markdown report; run by GitHub Actions every Monday |
+
+## 🏷️ Annotation Tool
+
+`annotate.py` is a FastAPI web app for manually labelling the 432 low-confidence comments identified during analysis.
+
+- Loads `low_confidence_comments.csv` and presents one comment at a time
+- Shows the model's prediction and confidence as context
+- Four label buttons with **keyboard shortcuts** for fast labelling:
+
+| Key | Label |
+|-----|-------|
+| `P` | Positive |
+| `N` | Negative |
+| `U` | Neutral |
+| `S` | Sarcastic / Mixed |
+| `Z` | Undo last label |
+
+- Progress bar (e.g. 37 / 432) and immediate save to `annotations.csv`
+- Automatically resumes where you left off on restart
+
+**Run:**
+```bash
+uvicorn annotate:app --port 8001
+```
+Then open **http://localhost:8001**
+
+The resulting `annotations.csv` (text, model_prediction, model_confidence, human_label) forms the candidate training set for a future neutral-class model extension.
 
 ## 📡 Data Collection
 
