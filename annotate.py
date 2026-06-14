@@ -98,6 +98,7 @@ def post_label(payload: LabelPayload):
             "human_label":      payload.label,
         })
         _save_annotations(_annotations)
+        print(f"Saved #{idx + 1}: {payload.label}", flush=True)
     return get_state()
 
 
@@ -260,9 +261,30 @@ HTML = """<!DOCTYPE html>
   }
   .done h2 { font-size: 2rem; color: #86efac; margin-bottom: 8px; }
   .done p  { color: #94a3b8; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+    z-index: 999;
+  }
+  .toast.show   { opacity: 1; }
+  .toast.ok     { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+  .toast.err    { background: #7f1d1d; color: #fca5a5; border: 1px solid #dc2626; }
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 <div class="shell" id="app">
   <div class="header">
     <span class="title">Roman Urdu Annotator</span>
@@ -303,6 +325,15 @@ HTML = """<!DOCTYPE html>
 
 <script>
 let busy = false;
+let toastTimer = null;
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 1400);
+}
 
 async function fetchState() {
   const r = await fetch('/api/state');
@@ -344,7 +375,14 @@ async function label(value) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ label: value }),
     });
-    renderState(await r.json());
+    if (r.ok) {
+      showToast('Saved!', 'ok');
+      renderState(await r.json());
+    } else {
+      showToast('Save failed!', 'err');
+    }
+  } catch (e) {
+    showToast('Save failed!', 'err');
   } finally {
     busy = false;
   }
@@ -355,7 +393,14 @@ async function undo() {
   busy = true;
   try {
     const r = await fetch('/api/undo', { method: 'POST' });
-    if (r.ok) renderState(await r.json());
+    if (r.ok) {
+      showToast('Undone', 'ok');
+      renderState(await r.json());
+    } else {
+      showToast('Undo failed!', 'err');
+    }
+  } catch (e) {
+    showToast('Undo failed!', 'err');
   } finally {
     busy = false;
   }
