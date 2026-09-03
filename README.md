@@ -83,9 +83,10 @@ Reports label distribution, model-vs-human agreement on P/N cases, and novel-cla
 `collect_data.py` uses the YouTube Data API v3 to gather real-world Roman Urdu comments for further analysis or model retraining.
 
 - Searches across 7 categories: **dramas, cricket, news, vlogs, music, comedy, food** (configurable `SEARCH_TERMS` dict)
-- Filters to Roman Urdu: Latin script + presence of common Urdu vocabulary markers
+- Filters to Roman Urdu: Latin script + at least 2 common Urdu vocabulary markers (ambiguous English-overlapping words like "to"/"par"/"na" excluded from the marker list)
 - Deduplicates across all fetched videos in a run
-- Saves `collected_comments.csv` (text, video\_title, date\_collected)
+- Tracks per-category fetched/kept counts and prints a Roman Urdu density summary
+- Saves `collected_comments.csv` (text, video\_title, category, date\_collected)
 - Runs `xlmroberta_finetuned` inference and saves `collected_with_predictions.csv`
 - Prints a summary: total fetched, kept after filtering, Positive/Negative split
 

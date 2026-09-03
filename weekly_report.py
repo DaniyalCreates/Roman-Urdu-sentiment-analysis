@@ -91,12 +91,12 @@ _ARABIC_RE = re.compile(r'[؀-ۿݐ-ݿࢠ-ࣿ]')
 
 _URDU_RE = re.compile(
     r'\b('
-    r'hai|hain|nahi|nahin|na|acha|accha|achi|acchi|yaar|bohat|bahut|'
+    r'hai|hain|nahi|nahin|acha|accha|achi|acchi|yaar|bohat|bahut|'
     r'kya|mein|main|mujhe|hum|tum|aap|tumhara|tumhari|apna|apni|'
     r'bhai|dost|yar|aur|lekin|magar|kyun|kyunke|phir|abhi|kal|aaj|aj|'
     r'bilkul|zaroor|zarur|theek|thik|sahi|galat|bura|buri|'
-    r'tera|mera|teri|meri|woh|wo|yeh|ye|jo|jab|tab|toh|to|'
-    r'se|ke|ki|ka|ne|pe|par|liye|wala|wali|'
+    r'tera|mera|teri|meri|woh|wo|yeh|ye|jo|jab|tab|toh|'
+    r'se|ke|ki|ka|ne|pe|liye|wala|wali|'
     r'dekho|dekh|suno|sun|laga|lagta|lagti|karo|karna|karta|karti|'
     r'pasand|dil|zindagi|maza|mazaa|pyar|mohabbat|'
     r'mashallah|subhanallah|inshallah|alhamdulillah|'
@@ -112,7 +112,7 @@ def is_roman_urdu(text: str) -> bool:
         return False
     if _ARABIC_RE.search(text):
         return False
-    return bool(_URDU_RE.search(text))
+    return len(_URDU_RE.findall(text)) >= 2  # require 2+ markers to avoid single ambiguous-word false positives
 
 
 # ── YouTube helpers ────────────────────────────────────────────────────────────

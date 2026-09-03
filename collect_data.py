@@ -92,16 +92,16 @@ _ARABIC_RE = re.compile(r'[؀-ۿݐ-ݿࢠ-ࣿ]')
 
 _URDU_RE = re.compile(
     r'\b('
-    r'hai|hain|nahi|nahin|na|acha|accha|achi|acchi|yaar|bohat|bahut|'
+    r'hai|hain|nahi|nahin|acha|accha|achi|acchi|yaar|bohat|bahut|'
     r'kya|mein|main|mujhe|hum|tum|aap|tumhara|tumhari|apna|apni|'
     r'bhai|dost|yar|aur|lekin|magar|kyun|kyunke|phir|abhi|kal|aaj|aj|'
     r'bilkul|zaroor|zarur|theek|thik|sahi|galat|bura|buri|'
-    r'tera|mera|teri|meri|woh|wo|yeh|ye|jo|jab|tab|toh|to|'
-    r'se|ke|ki|ka|ne|pe|par|liye|wala|wali|'
+    r'tera|mera|teri|meri|woh|wo|yeh|ye|jo|jab|tab|toh|'
+    r'se|ke|ki|ka|ne|pe|liye|wala|wali|'
     r'dekho|dekh|suno|sun|laga|lagta|lagti|karo|karna|karta|karti|'
     r'pasand|dil|zindagi|maza|mazaa|pyar|mohabbat|'
     r'mashallah|subhanallah|inshallah|alhamdulillah|'
-    r'zyada|thora|thoda|pata|nahi|pata|samajh|hua|hui|hoga|hogi'
+    r'zyada|thora|thoda|pata|samajh|hua|hui|hoga|hogi'
     r')\b',
     re.IGNORECASE,
 )
@@ -114,7 +114,7 @@ def is_roman_urdu(text: str) -> bool:
         return False
     if _ARABIC_RE.search(text):   # Nastaliq script → not Roman Urdu
         return False
-    return bool(_URDU_RE.search(text))
+    return len(_URDU_RE.findall(text)) >= 2  # require 2+ markers to avoid single ambiguous-word false positives
 
 
 # ── YouTube helpers ────────────────────────────────────────────────────────────
@@ -224,6 +224,7 @@ def main():
     rows        = []
     seen        = set()
     total_fetched = 0
+    category_stats = {cat: {"fetched": 0, "kept": 0} for cat in SEARCH_TERMS}
 
     for category, terms in SEARCH_TERMS.items():
         print(f"\n── {category.upper()} ──────────────────────────────────")
@@ -236,6 +237,7 @@ def main():
                 print(f"    [{vid_id}] {title[:70]}")
                 comments = fetch_comments(youtube, vid_id)
                 total_fetched += len(comments)
+                category_stats[category]["fetched"] += len(comments)
                 kept = 0
 
                 for text in comments:
@@ -247,9 +249,11 @@ def main():
                         rows.append({
                             "text":           text,
                             "video_title":    title,
+                            "category":       category,
                             "date_collected": date_today,
                         })
                         kept += 1
+                        category_stats[category]["kept"] += 1
 
                 print(f"      fetched {len(comments)} comments, kept {kept} Roman Urdu")
                 time.sleep(0.3)
@@ -258,6 +262,15 @@ def main():
     print(f"\n{'─'*50}")
     print(f"Total fetched  : {total_fetched}")
     print(f"Kept (filtered): {len(rows)}")
+    print("\nPer-category Roman Urdu density:")
+    for cat, stats in sorted(
+        category_stats.items(),
+        key=lambda x: x[1]["kept"] / max(x[1]["fetched"], 1),
+        reverse=True,
+    ):
+        f, k = stats["fetched"], stats["kept"]
+        d = k / f * 100 if f else 0
+        print(f"  {cat:<8} fetched {f:>5}  kept {k:>5}  ({d:.1f}%)")
 
     if not rows:
         print("No Roman Urdu comments found. Check search terms or API key.")
